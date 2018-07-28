@@ -35,14 +35,10 @@
                 User currentUser = (User) session.getAttribute(Defs.SESSION_USER_STRING);
                 if (currentUser != null) {System.out.println("......."+currentUser.getUserName());
                     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-                    String up = Defs.ENTITY_PROPERTY_UPLOADER_STRING;
-                   // if (currentUser.getUserName() == up) {
-                   //set a filter (condition) on the userName
-                   //.ENTITY_PROPERTY_UPLOADER_STRING, FilterOperator.EQUAL, currentUser.getUserName()
-                 
-                   
-                   Query.Filter propertyFilter = new FilterPredicate(up, FilterOperator.EQUAL, currentUser.getUserName());
-                        Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_STRING).setFilter(propertyFilter);
+                    
+                   //Jonathan: set a filter (condition) on the userName
+                    Query.Filter propertyFilter = new FilterPredicate(Defs.ENTITY_PROPERTY_UPLOADER_STRING, FilterOperator.EQUAL, currentUser.getUserName());
+                    Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_STRING).setFilter(propertyFilter);
 
                         List<Entity> files = datastore.prepare(fileQuery).asList(FetchOptions.Builder.withDefaults());
                         if (!files.isEmpty()) {
