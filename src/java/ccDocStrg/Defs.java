@@ -14,6 +14,7 @@ public class Defs {
   public static final String ENTITY_PROPERTY_FIRSTNAME_STRING = "firstName";
   public static final String ENTITY_PROPERTY_LASTNAME_STRING = "lastName";
   public static final String ENTITY_PROPERTY_FILENAME_STRING = "fileName";
+  public static final String ENTITY_PROPERTY_USER_FILE_STRING = "userFile";
   public static final String LOGIN_PAGE_STRING = "login.jsp";
   public static final String LIST_PAGE_STRING = "list.jsp";
   public static final String UPLOAD_PAGE_STRING = "upload.jsp";
