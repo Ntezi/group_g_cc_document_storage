@@ -50,6 +50,8 @@ public class Upload extends HttpServlet {
             ? new ServletFileUpload() : null;
     //Get the user information from the session context.
     User currentUSer = (User) session.getAttribute(Defs.SESSION_USER_STRING);
+    //Marius
+    String username = currentUSer.getUserName();
     //Make sure that the user has already loggedin and that the file uploaded is not null.
     if (currentUSer != null && fileUpload != null) {
       //Prepare the GCS service.
@@ -68,7 +70,8 @@ public class Upload extends HttpServlet {
           FileItemStream fileItem = fileItemIterator.next();
           String fileNameparam = fileItem.getName();
           //Prepare the file name in GCS format.
-          GcsFilename fileName = new GcsFilename(Defs.BUCKET_STRING, fileNameparam);
+          //Marius
+          GcsFilename fileName = new GcsFilename(Defs.BUCKET_STRING, username + '/' + fileNameparam);
           GcsOutputChannel outputChannel;
           //Read the contents from the request and send them to GCS.
           outputChannel = gcsService.createOrReplace(fileName, instance);
@@ -78,6 +81,8 @@ public class Upload extends HttpServlet {
           //We will use the table 'Files' to save the file name.
           Entity fileEntity = new Entity(Defs.DATASTORE_KIND_FILES_STRING);
           fileEntity.setProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING, fileNameparam);
+          //Marius
+          fileEntity.setProperty(Defs.ENTITY_PROPERTY_UPLOADER_STRING, username);
           //No need for filters.
           datastore.put(fileEntity);
           //Place a suitable message in the session context and redirect the browser to the page which

@@ -31,4 +31,7 @@ public class Defs {
   public static final String DATASTORE_KIND_USER_STRING = "Users";
   public static final String DATASTORE_KIND_FILES_STRING = "Files";
   public static final String BUCKET_STRING = "kic-cloud-computing-17149.appspot.com";
+  public static final String ENTITY_PROPERTY_UPLOADER_STRING = "uploader";
+  public static final String DATASTORE_KIND_FILES_BACKUP_STRING = "Backup";
+  public static final String ENTITY_PROPERTY_DELETED_TIME_STRING = "time";
 }
