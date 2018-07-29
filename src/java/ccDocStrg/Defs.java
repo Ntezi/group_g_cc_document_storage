@@ -34,6 +34,6 @@ public class Defs {
   
   //jonathan: name of the uploader
   public static final String ENTITY_PROPERTY_UPLOADER_STRING = "uploader";
-  //jonathan; a new query to list the files per user
-  public static final String DATASTORE_KIND_FILES_UPLOADER_STRING = "filesUploader";
+  //jonathan: a new property to get the size of a file in the datastore
+  public static final String ENTITY_PROPERTY_SIZE_INT="size";
 }

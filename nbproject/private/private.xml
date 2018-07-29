@@ -4,9 +4,11 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/D:/cloud%20computing%20resources/cc-document-storage/src/java/ccDocStrg/Defs.java</file>
+            <file>file:/D:/cloud%20computing%20resources/cc-document-storage/src/java/ccDocStrg/Download.java</file>
             <file>file:/D:/cloud%20computing%20resources/cc-document-storage/src/java/ccDocStrg/Upload.java</file>
             <file>file:/D:/cloud%20computing%20resources/cc-document-storage/src/java/ccDocStrg/Delete.java</file>
             <file>file:/D:/cloud%20computing%20resources/cc-document-storage/web/list.jsp</file>
+            <file>file:/D:/cloud%20computing%20resources/cc-document-storage/src/java/ccDocStrg/Validate.java</file>
         </group>
     </open-files>
 </project-private>

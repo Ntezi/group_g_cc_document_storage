@@ -63,6 +63,7 @@ public class Upload extends HttpServlet {
       FileItemIterator fileItemIterator;
       try {
         fileItemIterator = fileUpload.getItemIterator(request);
+       
         //Get the actual file name from the request.
         if (fileItemIterator.hasNext()) {
           FileItemStream fileItem;
@@ -71,7 +72,16 @@ public class Upload extends HttpServlet {
             String UN =currentUSer.getUserName();
          
             String fileNameparam = fileItem.getName();
-          //Prepare the file name in GCS format.
+            
+            //jonathan: get the size of the uploaded file
+            
+            InputStream stream=fileItem.openStream();
+             if (fileItem.isFormField()) {
+            // long fileUploadSize=fileItem.get
+            String sizeOfFile= Long.toString(fileUploadSize);
+             }
+
+//Prepare the file name in GCS format.
           GcsFilename fileName = new GcsFilename(Defs.BUCKET_STRING, fileNameparam);
           GcsOutputChannel outputChannel;
           //Read the contents from the request and send them to GCS.
@@ -82,7 +92,13 @@ public class Upload extends HttpServlet {
           //We will use the table 'Files' to save the file name.
           Entity fileEntity = new Entity(Defs.DATASTORE_KIND_FILES_STRING);
           fileEntity.setProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING, fileNameparam);
-          //jonathan: adding the column uploader
+          
+          
+          //jonathan: set the size of the file as a parameter / adding it as a column
+          fileEntity.setProperty(Defs.ENTITY_PROPERTY_SIZE_INT, sizeOfFile);
+          
+
+//jonathan: adding the column uploader
           fileEntity.setProperty(Defs.ENTITY_PROPERTY_UPLOADER_STRING, UN);
           //No need for filters.
           datastore.put(fileEntity);

@@ -50,9 +50,12 @@
             <%
                 while (allFiles.hasNext()) {
                     String fileName = (String) allFiles.next().getProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING);
+                    String size= (String) allFiles.next().getProperty(Defs.ENTITY_PROPERTY_SIZE_INT);
+                     
             %>
             <tr>
                 <td><%=fileName%></td>
+                <td><%=size%></td>
                 <td><a href='download?fileName=<%=fileName%>'>download</a></td>
                 <td><a href='delete?fileName=<%=fileName%>'>delete</a></td>
             </tr>
@@ -68,7 +71,11 @@
             <a href="/">Home</a> | 
             <a href="upload.jsp">Upload a file</a> | 
             <a href="logout">Logout</a> | 
-            <a href="profile.jsp">Update profile</a></footer>
+            <a href="profile.jsp">Update profile</a>
+            <p align="right">
+                Storage used: <%  %>
+            </p>
+        </footer>
             <%              } else {
                     session.setAttribute(Defs.SESSION_MESSAGE_STRING, "Please login firt!");
                     response.sendRedirect(Defs.LOGIN_PAGE_STRING);
