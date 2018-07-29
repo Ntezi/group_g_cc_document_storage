@@ -75,11 +75,15 @@ public class Upload extends HttpServlet {
             
             //jonathan: get the size of the uploaded file
             
-            InputStream stream=fileItem.openStream();
-             if (fileItem.isFormField()) {
+            //InputStream stream=fileItem.openStream();
+            // if (fileItem.isFormField()) {
             // long fileUploadSize=fileItem.get
-            String sizeOfFile= Long.toString(fileUploadSize);
-             }
+           // String sizeOfFile= Long.toString(fileUploadSize);
+             //}
+ 
+                         
+
+
 
 //Prepare the file name in GCS format.
           GcsFilename fileName = new GcsFilename(Defs.BUCKET_STRING, fileNameparam);
@@ -92,10 +96,12 @@ public class Upload extends HttpServlet {
           //We will use the table 'Files' to save the file name.
           Entity fileEntity = new Entity(Defs.DATASTORE_KIND_FILES_STRING);
           fileEntity.setProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING, fileNameparam);
-          
-          
-          //jonathan: set the size of the file as a parameter / adding it as a column
-          fileEntity.setProperty(Defs.ENTITY_PROPERTY_SIZE_INT, sizeOfFile);
+            
+             //jonathan: get the size of the uploaded file
+                    long sizeOfFile;
+                    sizeOfFile= gcsService.getMetadata(fileName).getLength();
+//jonathan: set the size of the file as a parameter / adding it as a column
+          fileEntity.setProperty(Defs.ENTITY_PROPERTY_SIZE_LONG, sizeOfFile);
           
 
 //jonathan: adding the column uploader

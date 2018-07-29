@@ -33,36 +33,41 @@
         <table>
             <%
                 User currentUser = (User) session.getAttribute(Defs.SESSION_USER_STRING);
-                if (currentUser != null) {System.out.println("......."+currentUser.getUserName());
+                if (currentUser != null) {
                     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-                    
-                   //Jonathan: set a filter (condition) on the userName
+
+                    //Jonathan: set a filter (condition) on the userName
                     Query.Filter propertyFilter = new FilterPredicate(Defs.ENTITY_PROPERTY_UPLOADER_STRING, FilterOperator.EQUAL, currentUser.getUserName());
                     Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_STRING).setFilter(propertyFilter);
 
-                        List<Entity> files = datastore.prepare(fileQuery).asList(FetchOptions.Builder.withDefaults());
-                        if (!files.isEmpty()) {
-                            Iterator<Entity> allFiles = files.iterator();
+                    List<Entity> files = datastore.prepare(fileQuery).asList(FetchOptions.Builder.withDefaults());
+                    if (!files.isEmpty()) {
+                        Iterator<Entity> allFiles = files.iterator();
+                        //jonathan
+                       Iterator<Entity> sizes = files.iterator();
             %>
             <tr>
-                <td><b>File name</b></td><td></td><td></td>
+                <td><b>File name</b></td><td></td><td>File size</td><td></td>
             </tr>
             <%
-                while (allFiles.hasNext()) {
+                while (allFiles.hasNext() ) {
                     String fileName = (String) allFiles.next().getProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING);
-                    String size= (String) allFiles.next().getProperty(Defs.ENTITY_PROPERTY_SIZE_INT);
-                     
+                    //jonathan
+                    long fileSize =  (long) sizes.next().getProperty(Defs.ENTITY_PROPERTY_SIZE_LONG);
+
             %>
             <tr>
                 <td><%=fileName%></td>
-                <td><%=size%></td>
+                <td></td>
+               <td><%=fileSize%> kBytes</td>
+               <td></td>
                 <td><a href='download?fileName=<%=fileName%>'>download</a></td>
                 <td><a href='delete?fileName=<%=fileName%>'>delete</a></td>
             </tr>
             <%
-                        }
                     }
-               // }
+                }
+                 
             %>
         </table>
         <br>
@@ -76,10 +81,10 @@
                 Storage used: <%  %>
             </p>
         </footer>
-            <%              } else {
-                    session.setAttribute(Defs.SESSION_MESSAGE_STRING, "Please login firt!");
-                    response.sendRedirect(Defs.LOGIN_PAGE_STRING);
-                }
-            %>
+        <%              } else {
+                session.setAttribute(Defs.SESSION_MESSAGE_STRING, "Please login first!");
+                response.sendRedirect(Defs.LOGIN_PAGE_STRING);
+            }
+        %>
     </body>
 </html>
