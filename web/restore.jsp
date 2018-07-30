@@ -24,7 +24,7 @@
             </tr>
             <tr>
                 <td>fileName</td>
-                <td><a href='restore?fileName=<%=fileName%>'>Restore</a></td>
+                <td><a href='restore?fileName=fileName'>Restore</a></td>
             </tr>
         </table>
         <br>
