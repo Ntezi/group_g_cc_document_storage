@@ -38,7 +38,7 @@
 
                     //Jonathan: set a filter (condition) on the userName
                     Query.Filter propertyFilter = new FilterPredicate(Defs.ENTITY_PROPERTY_UPLOADER_STRING, FilterOperator.EQUAL, currentUser.getUserName());
-                    Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_BACKUP_STRING).setFilter(propertyFilter);
+                    Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_STRING).setFilter(propertyFilter);
                     List<Entity> files = datastore.prepare(fileQuery).asList(FetchOptions.Builder.withDefaults());
                     if (!files.isEmpty()) {
                         Iterator<Entity> allFiles = files.iterator();
@@ -67,6 +67,7 @@
         <footer>
             <a href="/">Home</a> | 
             <a href="upload.jsp">Upload a file</a> | 
+            <a href="restore.jsp">Restore</a> | 
             <a href="logout">Logout</a> | 
             <a href="profile.jsp">Update profile</a></footer>
             <%              } else {

@@ -85,3 +85,4 @@ nbdist/
 
 
 # End of https://www.gitignore.io/api/serverless,netbeans,java-web,java,web,macos
+!/web/restore.jsp

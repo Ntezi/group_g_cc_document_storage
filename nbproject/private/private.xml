@@ -3,7 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/mariusngaboyamahina/Apps/WEB/group_g_cc_document_storage/web/WEB-INF/appengine-web.xml</file>
+            <file>file:/Users/mariusngaboyamahina/Apps/WEB/group_g_cc_document_storage/web/WEB-INF/web.xml</file>
+            <file>file:/Users/mariusngaboyamahina/Apps/WEB/group_g_cc_document_storage/src/java/ccDocStrg/Delete.java</file>
+            <file>file:/Users/mariusngaboyamahina/Apps/WEB/group_g_cc_document_storage/src/java/ccDocStrg/Upload.java</file>
+            <file>file:/Users/mariusngaboyamahina/Apps/WEB/group_g_cc_document_storage/src/java/ccDocStrg/Restore.java</file>
+            <file>file:/Users/mariusngaboyamahina/Apps/WEB/group_g_cc_document_storage/web/list.jsp</file>
             <file>file:/Users/mariusngaboyamahina/Apps/WEB/group_g_cc_document_storage/src/java/ccDocStrg/Defs.java</file>
         </group>
     </open-files>
