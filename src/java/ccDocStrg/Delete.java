@@ -5,6 +5,8 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
@@ -13,8 +15,10 @@ import com.google.appengine.tools.cloudstorage.ListOptions;
 import com.google.appengine.tools.cloudstorage.ListResult;
 import com.google.appengine.tools.cloudstorage.RetryParams;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -119,28 +123,62 @@ public class Delete extends HttpServlet {
     }// </editor-fold>
 
     //Storage clean up
-    public static void doCleanUp(String userName) {
+    //Delete the files in the storage when they are not listed in the Datastore after a period of time from deletion
+    public static void doCleanUp(String userName) throws Exception {
         String bucket = Defs.BUCKET_STRING;
         try {
+            DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-            //Prepare the GCS service.
-            GcsService gcsService = GcsServiceFactory.createGcsService(new RetryParams.Builder()
-                    .initialRetryDelayMillis(10)
-                    .retryMaxAttempts(10)
-                    .totalRetryPeriodMillis(15000)
-                    .build());
+            //Jonathan: set a filter (condition) on the userName
+            Query.Filter propertyFilter = new FilterPredicate(Defs.ENTITY_PROPERTY_UPLOADER_STRING, FilterOperator.EQUAL, userName);
+            Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_BACKUP_STRING).setFilter(propertyFilter);
+            List<Entity> files = datastore.prepare(fileQuery).asList(FetchOptions.Builder.withDefaults());
+            if (!files.isEmpty()) {
+                Iterator<Entity> allFiles = files.iterator();
 
-            ListResult list = gcsService.list(bucket, new ListOptions.Builder().setPrefix(userName).setRecursive(true).build());
+                //jonathan
+                while (allFiles.hasNext()) {
+                    String fileName = (String) allFiles.next().getProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING);
+                    String time = (String) allFiles.next().getProperty(Defs.ENTITY_PROPERTY_DELETED_TIME_STRING);
 
-            while (list.hasNext()) {
-                ListItem item = list.next();
-                gcsService.delete(new GcsFilename(bucket, item.getName()));
+                    //Prepare the GCS service.
+                    GcsService gcsService = GcsServiceFactory.createGcsService(new RetryParams.Builder()
+                            .initialRetryDelayMillis(10)
+                            .retryMaxAttempts(10)
+                            .totalRetryPeriodMillis(15000)
+                            .build());
+                    //Get list in the folder
+                    ListResult list = gcsService.list(bucket, new ListOptions.Builder().setPrefix(userName).setRecursive(true).build());
+                    
+                    while (list.hasNext()) {
+                        ListItem item = list.next();
+                        if (fileName == item.getName() && Delete.doTimeDifference(time) > 60) {
+                            gcsService.delete(new GcsFilename(bucket, item.getName()));
+                        }
+                    }
+
+                }
             }
+
         } catch (IOException e) {
             //Error handling
         }
     }
-    
+
+    //Function to calculate the difference between two strings of time
+    public static long doTimeDifference(String time) throws Exception {
+        String time1 = time;
+        String time2 = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date());;
+
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+        Date date1 = format.parse(time1);
+        Date date2 = format.parse(time2);
+        long difference = date2.getTime() - date1.getTime();
+
+        //the different is in milliseconds, it needs to be divided by 1000 to get the number of seconds
+        return difference / 1000;
+    }
+
     public void doBackUp(String fileName, String userName) {
         String timeStamp = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date());
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();

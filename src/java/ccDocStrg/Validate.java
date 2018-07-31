@@ -65,8 +65,12 @@ public class Validate extends HttpServlet {
                 //Send the user to the page which lists the files.
                 response.sendRedirect(Defs.LIST_PAGE_STRING);
                 //Marius
-                //new Delete().doCleanUp(user.getUserName());
-                
+                // Call this to clean up the storage
+                try {
+                    new Delete().doCleanUp(user.getUserName());
+                } catch (Exception e) {
+                }
+
             } else {
                 //There was no match in the 'Users'!
                 //Take the user back to the locg in page.

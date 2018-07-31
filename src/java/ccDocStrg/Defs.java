@@ -34,4 +34,5 @@ public class Defs {
   public static final String ENTITY_PROPERTY_UPLOADER_STRING = "uploader";
   public static final String DATASTORE_KIND_FILES_BACKUP_STRING = "Backup";
   public static final String ENTITY_PROPERTY_DELETED_TIME_STRING = "time";
+  public static final String SESSION_RESTORE_MESSAGE_STRING = "Message";
 }

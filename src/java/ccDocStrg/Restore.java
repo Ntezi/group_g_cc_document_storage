@@ -11,6 +11,8 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Query;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -41,6 +43,8 @@ public class Restore extends HttpServlet {
         User currentUSer = (User) session.getAttribute(Defs.SESSION_USER_STRING);
         //Get the file name from the URL
         String fileName = request.getParameter(Defs.PARAM_FILENAME_STRING);
+        //Create username
+        String username = currentUSer.getUserName();
         //Make sure that the user has already loggedin and that the fileName parameter is not empty/null.
         if (currentUSer != null
                 && fileName != null
@@ -48,7 +52,7 @@ public class Restore extends HttpServlet {
             //Prepare the Datastore service.
             DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
             //We will serach in the 'Files' table for the file name.
-            Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_STRING);
+            Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_BACKUP_STRING);
             //Set a filetr on the file name.
             Query.Filter fileFilter = new Query.FilterPredicate(Defs.ENTITY_PROPERTY_FILENAME_STRING,
                     Query.FilterOperator.EQUAL, fileName);
@@ -56,10 +60,14 @@ public class Restore extends HttpServlet {
             //Run the query.
             List<Entity> dbFiles = datastore.prepare(fileQuery).asList(FetchOptions.Builder.withDefaults());
             if (!dbFiles.isEmpty()) {
-                //If the file name was found then delete it from the Datastore.
-
                 
-                session.setAttribute(Defs.SESSION_MESSAGE_STRING, "The file indicated was deleted!");
+                //Call the function recovery after deletion
+                this.doRestore(fileName, username);
+                
+                //Delete the file after the recovery
+                datastore.delete(dbFiles.get(0).getKey());
+                
+                session.setAttribute(Defs.SESSION_RESTORE_MESSAGE_STRING, "The file indicated was restored!");
                 response.sendRedirect(Defs.LIST_PAGE_STRING);
             } else {
                 //There was no such file name.
@@ -111,5 +119,15 @@ public class Restore extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
+    
+    //Recovery after deletion
+    public void doRestore(String fileName, String userName) {
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+        //We will serach in the 'Files' table for the file name.
+        Entity fileEntity = new Entity(Defs.DATASTORE_KIND_FILES_STRING);
+        fileEntity.setProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING, fileName);
+        fileEntity.setProperty(Defs.ENTITY_PROPERTY_UPLOADER_STRING, userName);
+        //No need for filters.
+        datastore.put(fileEntity);
+    }
 }

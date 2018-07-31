@@ -65,7 +65,7 @@
         <br>
         <hr>
         <footer>
-            <a href="/">Home</a> | 
+            <a href="list.jsp">Home</a> | 
             <a href="upload.jsp">Upload a file</a> | 
             <a href="restore.jsp">Restore</a> | 
             <a href="logout">Logout</a> | 
