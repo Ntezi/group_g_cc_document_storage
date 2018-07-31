@@ -31,5 +31,5 @@ public class Defs {
   public static final String PARAM_FILENAME_STRING = "fileName";
   public static final String DATASTORE_KIND_USER_STRING = "Users";
   public static final String DATASTORE_KIND_FILES_STRING = "Files";
-  public static final String BUCKET_STRING = "kic-cloud-computing-17149.appspot.com";
+  public static final String BUCKET_STRING = "kic-cloud-computing-17136.appspot.com";
 }
