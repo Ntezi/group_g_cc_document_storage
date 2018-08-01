@@ -51,9 +51,12 @@
             <%
                 while (allFiles.hasNext()) {
                     String fileName = (String) allFiles.next().getProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING);
+                    //jonathan
+                    long fileSize =  (long) sizes.next().getProperty(Defs.ENTITY_PROPERTY_SIZE_LONG);
             %>
             <tr>
                 <td><%=fileName%></td>
+                <td><%=fileSize%></td>
                 <td><a href='download?fileName=<%=fileName%>'>download</a></td>
                 <td><a href='delete?fileName=<%=fileName%>'>delete</a></td>
             </tr>

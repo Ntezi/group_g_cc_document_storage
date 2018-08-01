@@ -65,7 +65,7 @@ public class Validate extends HttpServlet {
                 //Marius
                 // Call this to clean up the storage
                 try {
-                    new Delete().doCleanUp(user.getUserName(), session);
+                    new Delete().doCleanUp(user.getUserName());
                 } catch (Exception e) {
                 }
                 //Send the user to the page which lists the files.

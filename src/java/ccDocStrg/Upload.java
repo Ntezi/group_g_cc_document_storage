@@ -82,7 +82,10 @@ public class Upload extends HttpServlet {
           Entity fileEntity = new Entity(Defs.DATASTORE_KIND_FILES_STRING);
           fileEntity.setProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING, fileNameparam);
           //Marius
+          long sizeOfFile= gcsService.getMetadata(fileName).getLength();
           fileEntity.setProperty(Defs.ENTITY_PROPERTY_UPLOADER_STRING, username);
+          fileEntity.setProperty(Defs.ENTITY_PROPERTY_SIZE_LONG, sizeOfFile);
+          
           //No need for filters.
           datastore.put(fileEntity);
           //Place a suitable message in the session context and redirect the browser to the page which

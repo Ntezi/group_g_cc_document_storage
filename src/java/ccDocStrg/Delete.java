@@ -124,7 +124,7 @@ public class Delete extends HttpServlet {
 
     //Storage clean up
     //Delete the files in the storage when they are not listed in the Datastore after a period of time from deletion
-    public static void doCleanUp(String userName, HttpSession session) throws Exception {
+    public static void doCleanUp(String userName) throws Exception {
         String bucket = Defs.BUCKET_STRING;
         try {
 
@@ -155,17 +155,15 @@ public class Delete extends HttpServlet {
                         ListItem item = list.next();
                         if (Delete.doTimeDifference(time) > 180) {
                             String deletedTime = Long.toString(Delete.doTimeDifference(time));
-                            session.setAttribute(Defs.SESSION_MESSAGE_STRING, deletedTime);
+                            //session.setAttribute(Defs.SESSION_MESSAGE_STRING, deletedTime);
                             
                             gcsService.delete(new GcsFilename(bucket, path));
                             datastore.delete(dbFiles.get(0).getKey());
                             //gcsService.delete(new GcsFilename(bucket, item.getName()));
                         }
                     }
-
                 }
             }
-
         } catch (IOException e) {
             //Error handling
         }

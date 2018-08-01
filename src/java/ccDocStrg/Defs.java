@@ -35,4 +35,5 @@ public class Defs {
   public static final String DATASTORE_KIND_FILES_BACKUP_STRING = "Backup";
   public static final String ENTITY_PROPERTY_DELETED_TIME_STRING = "time";
   public static final String ENTITY_PROPERTY_PATH_STRING = "path";
+  public static final String ENTITY_PROPERTY_SIZE_LONG = "size";
 }
