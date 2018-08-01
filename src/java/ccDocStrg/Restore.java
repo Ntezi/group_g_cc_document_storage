@@ -67,7 +67,7 @@ public class Restore extends HttpServlet {
                 //Delete the file after the recovery
                 datastore.delete(dbFiles.get(0).getKey());
                 
-                session.setAttribute(Defs.SESSION_RESTORE_MESSAGE_STRING, "The file indicated was restored!");
+                session.setAttribute(Defs.SESSION_MESSAGE_STRING, "The file indicated was restored!");
                 response.sendRedirect(Defs.LIST_PAGE_STRING);
             } else {
                 //There was no such file name.

@@ -124,23 +124,25 @@ public class Delete extends HttpServlet {
 
     //Storage clean up
     //Delete the files in the storage when they are not listed in the Datastore after a period of time from deletion
-    public static void doCleanUp(String userName) throws Exception {
+    public static void doCleanUp(String userName, HttpSession session) throws Exception {
         String bucket = Defs.BUCKET_STRING;
         try {
+
+            //Prepare the Datastore service.
             DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-            //Jonathan: set a filter (condition) on the userName
             Query.Filter propertyFilter = new FilterPredicate(Defs.ENTITY_PROPERTY_UPLOADER_STRING, FilterOperator.EQUAL, userName);
             Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_BACKUP_STRING).setFilter(propertyFilter);
-            List<Entity> files = datastore.prepare(fileQuery).asList(FetchOptions.Builder.withDefaults());
-            if (!files.isEmpty()) {
-                Iterator<Entity> allFiles = files.iterator();
+            //Run the query.
+            List<Entity> dbFiles = datastore.prepare(fileQuery).asList(FetchOptions.Builder.withDefaults());
 
-                //jonathan
+            if (!dbFiles.isEmpty()) {
+
+                Iterator<Entity> allFiles = dbFiles.iterator();
+
                 while (allFiles.hasNext()) {
-                    String fileName = (String) allFiles.next().getProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING);
+                    String path = (String) allFiles.next().getProperty(Defs.ENTITY_PROPERTY_PATH_STRING);
                     String time = (String) allFiles.next().getProperty(Defs.ENTITY_PROPERTY_DELETED_TIME_STRING);
-
                     //Prepare the GCS service.
                     GcsService gcsService = GcsServiceFactory.createGcsService(new RetryParams.Builder()
                             .initialRetryDelayMillis(10)
@@ -149,11 +151,15 @@ public class Delete extends HttpServlet {
                             .build());
                     //Get list in the folder
                     ListResult list = gcsService.list(bucket, new ListOptions.Builder().setPrefix(userName).setRecursive(true).build());
-                    
                     while (list.hasNext()) {
                         ListItem item = list.next();
-                        if (fileName == item.getName() && Delete.doTimeDifference(time) > 60) {
-                            gcsService.delete(new GcsFilename(bucket, item.getName()));
+                        if (Delete.doTimeDifference(time) > 180) {
+                            String deletedTime = Long.toString(Delete.doTimeDifference(time));
+                            session.setAttribute(Defs.SESSION_MESSAGE_STRING, deletedTime);
+                            
+                            gcsService.delete(new GcsFilename(bucket, path));
+                            datastore.delete(dbFiles.get(0).getKey());
+                            //gcsService.delete(new GcsFilename(bucket, item.getName()));
                         }
                     }
 
@@ -168,9 +174,9 @@ public class Delete extends HttpServlet {
     //Function to calculate the difference between two strings of time
     public static long doTimeDifference(String time) throws Exception {
         String time1 = time;
-        String time2 = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date());;
+        String time2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
-        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date1 = format.parse(time1);
         Date date2 = format.parse(time2);
         long difference = date2.getTime() - date1.getTime();
@@ -180,13 +186,14 @@ public class Delete extends HttpServlet {
     }
 
     public void doBackUp(String fileName, String userName) {
-        String timeStamp = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date());
+        String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         //We will serach in the 'Files' table for the file name.
         Entity fileEntity = new Entity(Defs.DATASTORE_KIND_FILES_BACKUP_STRING);
         fileEntity.setProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING, fileName);
         fileEntity.setProperty(Defs.ENTITY_PROPERTY_UPLOADER_STRING, userName);
         fileEntity.setProperty(Defs.ENTITY_PROPERTY_DELETED_TIME_STRING, timeStamp);
+        fileEntity.setProperty(Defs.ENTITY_PROPERTY_PATH_STRING, userName + "/" + fileName);
         //No need for filters.
         datastore.put(fileEntity);
     }
