@@ -10,6 +10,10 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.appengine.tools.cloudstorage.RetryParams;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -62,7 +66,7 @@ public class Restore extends HttpServlet {
             if (!dbFiles.isEmpty()) {
                 
                 //Call the function recovery after deletion
-                this.doRestore(fileName, username);
+                try{this.doRestore(fileName, username);}catch(Exception e){}
                 
                 //Delete the file after the recovery
                 datastore.delete(dbFiles.get(0).getKey());
@@ -121,12 +125,21 @@ public class Restore extends HttpServlet {
     }// </editor-fold>
     
     //Recovery after deletion
-    public void doRestore(String fileName, String userName) {
+    public void doRestore(String fileName, String userName) throws Exception {
+        GcsService gcsService = GcsServiceFactory.createGcsService(new RetryParams.Builder()
+                .initialRetryDelayMillis(10)
+                .retryMaxAttempts(10)
+                .totalRetryPeriodMillis(15000)
+                .build());
+        String bucket = Defs.BUCKET_STRING;
+        long size = gcsService.getMetadata(new GcsFilename(bucket, userName + "/" + fileName)).getLength();
+        
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         //We will serach in the 'Files' table for the file name.
         Entity fileEntity = new Entity(Defs.DATASTORE_KIND_FILES_STRING);
         fileEntity.setProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING, fileName);
         fileEntity.setProperty(Defs.ENTITY_PROPERTY_UPLOADER_STRING, userName);
+        fileEntity.setProperty(Defs.ENTITY_PROPERTY_SIZE_LONG, size);
         //No need for filters.
         datastore.put(fileEntity);
     }

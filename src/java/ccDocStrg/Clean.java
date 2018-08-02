@@ -74,7 +74,6 @@ public class Clean extends HttpServlet {
                         .retryMaxAttempts(10)
                         .totalRetryPeriodMillis(15000)
                         .build());
-                
                 datastore.delete(dbFiles.get(0).getKey());
                 gcsService.delete(new GcsFilename(bucket, userName + "/"+ fileName));
                 

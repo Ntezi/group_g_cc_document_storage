@@ -170,8 +170,16 @@ public class Delete extends HttpServlet {
 //            //Error handling
 //        }
 //    }
-    public void doBackUp(String fileName, String userName) {
+    public void doBackUp(String fileName, String userName) throws IOException {
         String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        GcsService gcsService = GcsServiceFactory.createGcsService(new RetryParams.Builder()
+                .initialRetryDelayMillis(10)
+                .retryMaxAttempts(10)
+                .totalRetryPeriodMillis(15000)
+                .build());
+        String bucket = Defs.BUCKET_STRING;
+        long size = gcsService.getMetadata(new GcsFilename(bucket, userName + "/" + fileName)).getLength();
+        
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         //We will serach in the 'Files' table for the file name.
         Entity fileEntity = new Entity(Defs.DATASTORE_KIND_FILES_BACKUP_STRING);
@@ -179,10 +187,11 @@ public class Delete extends HttpServlet {
         fileEntity.setProperty(Defs.ENTITY_PROPERTY_UPLOADER_STRING, userName);
         fileEntity.setProperty(Defs.ENTITY_PROPERTY_DELETED_TIME_STRING, timeStamp);
         fileEntity.setProperty(Defs.ENTITY_PROPERTY_PATH_STRING, userName + "/" + fileName);
+        fileEntity.setProperty(Defs.ENTITY_PROPERTY_SIZE_LONG, size);
         //No need for filters.
         datastore.put(fileEntity);
     }
-    
+
     //Function to calculate the difference between two strings of time
     public static long doTimeDifference(String time) throws Exception {
         String time1 = time;
