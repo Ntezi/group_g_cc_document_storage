@@ -3,7 +3,8 @@
     Created on : May 25, 2016, 12:54:30 PM
     Author     : Muhammad Wannous
 --%>
-
+<%@page import="com.google.appengine.api.datastore.Query.FilterPredicate"%>
+<%@page import="com.google.appengine.api.datastore.Query.FilterOperator"%>
 <%@page import="java.util.Iterator"%>
 <%@page import="java.util.List"%>
 <%@page import="com.google.appengine.api.datastore.FetchOptions"%>
@@ -28,44 +29,57 @@
         </p>
         <hr>
         <br><br>
-        <table>
+        <table border="1">
             <%
-              User currentUser = (User) session.getAttribute(Defs.SESSION_USER_STRING);
-              if (currentUser != null) {
-                DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-                Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_STRING);
-                List<Entity> files = datastore.prepare(fileQuery).asList(FetchOptions.Builder.withDefaults());
-                if (!files.isEmpty()) {
-                  Iterator<Entity> allFiles = files.iterator();
+                User currentUser = (User) session.getAttribute(Defs.SESSION_USER_STRING);
+
+                if (currentUser != null) {
+                    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+                    //Jonathan: set a filter (condition) on the userName
+                    Query.Filter propertyFilter = new FilterPredicate(Defs.ENTITY_PROPERTY_UPLOADER_STRING, FilterOperator.EQUAL, currentUser.getUserName());
+                    Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_STRING).setFilter(propertyFilter);
+                    List<Entity> files = datastore.prepare(fileQuery).asList(FetchOptions.Builder.withDefaults());
+                    if (!files.isEmpty()) {
+                        Iterator<Entity> allFiles = files.iterator();
+                        //jonathan
+                        Iterator<Entity> sizes = files.iterator();
             %>
             <tr>
-                <td><b>File name</b></td><td></td><td></td>
+                <td><b>File Name</b></td>
+                <td><b>File Size in (Bytes)</b></td>
+                <td><b></b></td>
+                <td><b></b></td>
             </tr>
             <%
-                  while (allFiles.hasNext()) {
-                    String fileName = (String)allFiles.next().getProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING);
+                while (allFiles.hasNext()) {
+                    String fileName = (String) allFiles.next().getProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING);
+                    //jonathan
+                    long fileSize =  (long) sizes.next().getProperty(Defs.ENTITY_PROPERTY_SIZE_LONG);
             %>
             <tr>
                 <td><%=fileName%></td>
-                <td><a href='download?fileName=<%=fileName%>'>download</a></td>
-                <td><a href='delete?fileName=<%=fileName%>'>delete</a></td>
+                <td><%=fileSize%></td>
+                <td><a href='download?fileName=<%=fileName%>'>Download</a></td>
+                <td><a href='delete?fileName=<%=fileName%>'>Delete</a></td>
             </tr>
             <%
+                    }
                 }
-              }
             %>
         </table>
         <br>
         <hr>
         <footer>
-            <a href="/">Home</a> | 
+            <a href="list.jsp">Home</a> | 
             <a href="upload.jsp">Upload a file</a> | 
+            <a href="restore.jsp">Delete History</a> | 
             <a href="logout">Logout</a> | 
             <a href="profile.jsp">Update profile</a></footer>
             <%              } else {
-                session.setAttribute(Defs.SESSION_MESSAGE_STRING, "Please login firt!");
-                response.sendRedirect(Defs.LOGIN_PAGE_STRING);
-              }
+                    session.setAttribute(Defs.SESSION_MESSAGE_STRING, "Please login firt!");
+                    response.sendRedirect(Defs.LOGIN_PAGE_STRING);
+                }
             %>
     </body>
 </html>

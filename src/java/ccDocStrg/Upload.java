@@ -82,8 +82,13 @@ public class Upload extends HttpServlet {
                     //We will use the table 'Files' to save the file name.
                     Entity fileEntity = new Entity(Defs.DATASTORE_KIND_FILES_STRING);
                     fileEntity.setProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING, fileNameparam);
-                    fileEntity.setProperty(Defs.ENTITY_PROPERTY_USER_FILE_STRING, currentUSer.getUserName());
-                    //No need for filters.
+                      long sizeOfFile;
+                    sizeOfFile= gcsService.getMetadata(fileName).getLength();
+//jonathan: set the size of the file as a parameter / adding it as a column
+          fileEntity.setProperty(Defs.ENTITY_PROPERTY_SIZE_LONG, sizeOfFile);
+          
+                    fileEntity.setProperty(Defs.ENTITY_PROPERTY_UPLOADER_STRING, currentUSer.getUserName());
+                    //No need for filters.fsize
                     datastore.put(fileEntity);
                     //Place a suitable message in the session context and redirect the browser to the page which
                     //lists the files.

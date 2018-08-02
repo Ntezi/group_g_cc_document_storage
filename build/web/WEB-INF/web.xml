@@ -28,6 +28,14 @@
         <servlet-name>Download</servlet-name>
         <servlet-class>ccDocStrg.Download</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>Restore</servlet-name>
+        <servlet-class>ccDocStrg.Restore</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>Clean</servlet-name>
+        <servlet-class>ccDocStrg.Clean</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Register</servlet-name>
         <url-pattern>/register</url-pattern>
@@ -55,6 +63,14 @@
     <servlet-mapping>
         <servlet-name>Download</servlet-name>
         <url-pattern>/download</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Restore</servlet-name>
+        <url-pattern>/restore</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Clean</servlet-name>
+        <url-pattern>/clean</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

@@ -32,4 +32,10 @@ public class Defs {
   public static final String DATASTORE_KIND_USER_STRING = "Users";
   public static final String DATASTORE_KIND_FILES_STRING = "Files";
   public static final String BUCKET_STRING = "kic-cloud-computing-17136.appspot.com";
+  public static final String ENTITY_PROPERTY_UPLOADER_STRING = "uploader";
+  public static final String DATASTORE_KIND_FILES_BACKUP_STRING = "Backup";
+  public static final String ENTITY_PROPERTY_DELETED_TIME_STRING = "time";
+  public static final String ENTITY_PROPERTY_PATH_STRING = "path";
+  public static final String ENTITY_PROPERTY_SIZE_LONG = "size";
+  public static final String RESTORE_PAGE_STRING = "restore.jsp";
 }
