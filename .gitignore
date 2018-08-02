@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 
 # Created by https://www.gitignore.io/api/serverless,netbeans,java-web,java,web,macos
 
@@ -61,7 +59,6 @@ Temporary Items
 .apdisk
 
 ### NetBeans ###
->>>>>>> marius
 nbproject/private/
 build/
 nbbuild/
@@ -69,29 +66,6 @@ dist/
 nbdist/
 .nb-gradle/
 
-<<<<<<< HEAD
-#netbeans specific
-core
-nbproject/*
-!nbproject/project.properties
-!nbproject/project.xml
-
-#java specific
-*.class
-
-#general swap/backup files
-*.so
-*.log
-*.out
-*~
-*.swp
-*.DS_Store
-*.lock
-
-LIB/
-web/WEB-INF/
-src/conf/
-=======
 ### Serverless ###
 # Ignore build directory
 .serverless
@@ -112,4 +86,3 @@ src/conf/
 
 # End of https://www.gitignore.io/api/serverless,netbeans,java-web,java,web,macos
 !/web/restore.jsp
->>>>>>> marius
