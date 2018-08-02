@@ -29,7 +29,7 @@
         </p>
         <hr>
         <br><br>
-        <table>
+        <table border="1">
             <%
                 User currentUser = (User) session.getAttribute(Defs.SESSION_USER_STRING);
 
@@ -46,7 +46,10 @@
                         Iterator<Entity> sizes = files.iterator();
             %>
             <tr>
-                <td><b>File name</b></td><td></td><td></td>
+                <td><b>File Name</b></td>
+                <td><b>File Size in (Bites)</b></td>
+                <td><b></b></td>
+                <td><b></b></td>
             </tr>
             <%
                 while (allFiles.hasNext()) {
@@ -57,8 +60,8 @@
             <tr>
                 <td><%=fileName%></td>
                 <td><%=fileSize%></td>
-                <td><a href='download?fileName=<%=fileName%>'>download</a></td>
-                <td><a href='delete?fileName=<%=fileName%>'>delete</a></td>
+                <td><a href='download?fileName=<%=fileName%>'>Download</a></td>
+                <td><a href='delete?fileName=<%=fileName%>'>Delete</a></td>
             </tr>
             <%
                     }
@@ -70,7 +73,7 @@
         <footer>
             <a href="list.jsp">Home</a> | 
             <a href="upload.jsp">Upload a file</a> | 
-            <a href="restore.jsp">Restore</a> | 
+            <a href="restore.jsp">Delete History</a> | 
             <a href="logout">Logout</a> | 
             <a href="profile.jsp">Update profile</a></footer>
             <%              } else {

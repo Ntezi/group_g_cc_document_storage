@@ -36,4 +36,5 @@ public class Defs {
   public static final String ENTITY_PROPERTY_DELETED_TIME_STRING = "time";
   public static final String ENTITY_PROPERTY_PATH_STRING = "path";
   public static final String ENTITY_PROPERTY_SIZE_LONG = "size";
+  public static final String RESTORE_PAGE_STRING = "restore.jsp";
 }

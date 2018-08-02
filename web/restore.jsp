@@ -28,27 +28,37 @@
         </p>
         <hr>
         <br><br>
-        <table>
+        <table border="1">
             <%
                 User currentUser = (User) session.getAttribute(Defs.SESSION_USER_STRING);
                 if (currentUser != null) {
                     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-                    Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_BACKUP_STRING);
+                    
+                    //Jonathan: set a filter (condition) on the userName
+                    Query.Filter propertyFilter = new FilterPredicate(Defs.ENTITY_PROPERTY_UPLOADER_STRING, FilterOperator.EQUAL, currentUser.getUserName());
+                    Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_BACKUP_STRING).setFilter(propertyFilter);
                     List<Entity> files = datastore.prepare(fileQuery).asList(FetchOptions.Builder.withDefaults());
                     if (!files.isEmpty()) {
                         Iterator<Entity> allFiles = files.iterator();
-
+                        //jonathan
+                        Iterator<Entity> times = files.iterator();
 
             %>
             <tr>
-                <td><b>File name</b></td><td></td><td></td>
+                <td><b>File Name</b></td>
+                <td><b>Deleted Time</b></td>
+                <td><b>Function to Recover</b></td>
+                <td><b>Function to Remove Permanently </b></td>
             </tr>
-            <%                while (allFiles.hasNext()) {
+            <%  while (allFiles.hasNext()) {
                     String fileName = (String) allFiles.next().getProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING);
+                    String time = (String) times.next().getProperty(Defs.ENTITY_PROPERTY_DELETED_TIME_STRING);
             %>
             <tr>
                 <td><%=fileName%></td>
+                <td><%=time%></td>
                 <td><a href='restore?fileName=<%=fileName%>'>Restore</a></td>
+                <td><a href='clean?fileName=<%=fileName%>'>Clean</a></td>
             </tr>
             <%
                     }

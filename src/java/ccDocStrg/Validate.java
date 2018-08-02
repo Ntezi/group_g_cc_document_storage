@@ -63,11 +63,11 @@ public class Validate extends HttpServlet {
                 session.setAttribute(Defs.SESSION_MESSAGE_STRING, "Welcome, " + user.getUserName());
                 session.setAttribute(Defs.SESSION_USER_STRING, user);
                 //Marius
-                // Call this to clean up the storage
-                try {
-                    new Delete().doCleanUp(user.getUserName());
-                } catch (Exception e) {
-                }
+                // Call this to clean up the storage when the user is logged in
+//                try {
+//                    new Delete().doCleanUp(user.getUserName());
+//                } catch (Exception e) {
+//                }
                 //Send the user to the page which lists the files.
                 response.sendRedirect(Defs.LIST_PAGE_STRING);
 
