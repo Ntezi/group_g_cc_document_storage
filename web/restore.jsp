@@ -1,7 +1,7 @@
 <%-- 
-    Document   : list
-    Created on : May 25, 2016, 12:54:30 PM
-    Author     : Muhammad Wannous
+    Document   : restore
+    Created on : Jul 30, 2018, 1:56:05 PM
+    Author     : mariusngaboyamahina
 --%>
 <%@page import="com.google.appengine.api.datastore.Query.FilterPredicate"%>
 <%@page import="com.google.appengine.api.datastore.Query.FilterOperator"%>
@@ -25,43 +25,40 @@
         <h1>Cloud Storage</h1>
         <h2>A Cloud-based application for storing files.</h2>
         <p align="right">
-            <%=session.getAttribute(Defs.SESSION_MESSAGE_STRING)%>
         </p>
         <hr>
         <br><br>
         <table border="1">
             <%
                 User currentUser = (User) session.getAttribute(Defs.SESSION_USER_STRING);
-
                 if (currentUser != null) {
                     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-
+                    
                     //Jonathan: set a filter (condition) on the userName
                     Query.Filter propertyFilter = new FilterPredicate(Defs.ENTITY_PROPERTY_UPLOADER_STRING, FilterOperator.EQUAL, currentUser.getUserName());
-                    Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_STRING).setFilter(propertyFilter);
+                    Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_BACKUP_STRING).setFilter(propertyFilter);
                     List<Entity> files = datastore.prepare(fileQuery).asList(FetchOptions.Builder.withDefaults());
                     if (!files.isEmpty()) {
                         Iterator<Entity> allFiles = files.iterator();
                         //jonathan
-                        Iterator<Entity> sizes = files.iterator();
+                        Iterator<Entity> times = files.iterator();
+
             %>
             <tr>
                 <td><b>File Name</b></td>
-                <td><b>File Size in (Bites)</b></td>
-                <td><b></b></td>
-                <td><b></b></td>
+                <td><b>Deleted Time</b></td>
+                <td><b>Function to Recover</b></td>
+                <td><b>Function to Remove Permanently </b></td>
             </tr>
-            <%
-                while (allFiles.hasNext()) {
+            <%  while (allFiles.hasNext()) {
                     String fileName = (String) allFiles.next().getProperty(Defs.ENTITY_PROPERTY_FILENAME_STRING);
-                    //jonathan
-                    long fileSize =  (long) sizes.next().getProperty(Defs.ENTITY_PROPERTY_SIZE_LONG);
+                    String time = (String) times.next().getProperty(Defs.ENTITY_PROPERTY_DELETED_TIME_STRING);
             %>
             <tr>
                 <td><%=fileName%></td>
-                <td><%=fileSize%></td>
-                <td><a href='download?fileName=<%=fileName%>'>Download</a></td>
-                <td><a href='delete?fileName=<%=fileName%>'>Delete</a></td>
+                <td><%=time%></td>
+                <td><a href='restore?fileName=<%=fileName%>'>Restore</a></td>
+                <td><a href='clean?fileName=<%=fileName%>'>Clean</a></td>
             </tr>
             <%
                     }
@@ -72,10 +69,6 @@
         <hr>
         <footer>
             <a href="list.jsp">Home</a> | 
-            <a href="upload.jsp">Upload a file</a> | 
-            <a href="restore.jsp">Delete History</a> | 
-            <a href="logout">Logout</a> | 
-            <a href="profile.jsp">Update profile</a></footer>
             <%              } else {
                     session.setAttribute(Defs.SESSION_MESSAGE_STRING, "Please login firt!");
                     response.sendRedirect(Defs.LOGIN_PAGE_STRING);

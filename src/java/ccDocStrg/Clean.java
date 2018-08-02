@@ -1,15 +1,29 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package ccDocStrg;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.Query;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
-import com.google.appengine.tools.cloudstorage.GcsInputChannel;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.appengine.tools.cloudstorage.ListItem;
+import com.google.appengine.tools.cloudstorage.ListOptions;
+import com.google.appengine.tools.cloudstorage.ListResult;
 import com.google.appengine.tools.cloudstorage.RetryParams;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.nio.channels.Channels;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,10 +31,9 @@ import javax.servlet.http.HttpSession;
 
 /**
  *
- * @author Muhammad Wannous This Servlet accepts one parameter for the file name
- * and downloads the corresponding file to the client.
+ * @author mariusngaboyamahina
  */
-public class Download extends HttpServlet {
+public class Clean extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -31,52 +44,46 @@ public class Download extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    private static final int BUFFER_SIZE = 2 * 1024 * 1024;
-
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         //Prepare the session context.
         HttpSession session = request.getSession(true);
         //Get the user information from the session context.
         User currentUSer = (User) session.getAttribute(Defs.SESSION_USER_STRING);
-        //Marius
-        String username = currentUSer.getUserName();
+        String userName = currentUSer.getUserName();
+        String bucket = Defs.BUCKET_STRING;
         //Get the file name from the URL
-        String fileNameParam = request.getParameter(Defs.PARAM_FILENAME_STRING);
+        String fileName = request.getParameter(Defs.PARAM_FILENAME_STRING);
         //Make sure that the user has already loggedin and that the fileName parameter is not empty/null.
         if (currentUSer != null
-                && fileNameParam != null
-                && !fileNameParam.equals("")) {
-            //Prepare Google Cloud Storage service.
-            GcsService gcsService = GcsServiceFactory.createGcsService(new RetryParams.Builder()
-                    .initialRetryDelayMillis(10)
-                    .retryMaxAttempts(10)
-                    .totalRetryPeriodMillis(15000)
-                    .build());
-            //Prepare the file name in GCS format.
-            //Marius
-            GcsFilename fileName = new GcsFilename(Defs.BUCKET_STRING, username + '/' + fileNameParam);
-            GcsInputChannel readChannel = gcsService.openPrefetchingReadChannel(fileName, 0, BUFFER_SIZE);
-            byte[] byteBuffer = new byte[BUFFER_SIZE];
-            ServletOutputStream outStream;
-            //Set the necessary headers in the response.
-            try (DataInputStream in = new DataInputStream(Channels.newInputStream(readChannel))) {
-                response.setContentType("application/octet-stream");
-                response.setHeader("Content-Disposition", "attachment; filename=\"" + fileNameParam + "\"");
-                int length = 0;
-                outStream = response.getOutputStream();
-                //Read the contents from GCS and write them to the output stream (the response).
-                while ((in != null) && ((length = in.read(byteBuffer)) != -1)) {
-                    outStream.write(byteBuffer, 0, length);
-                }
+                && fileName != null
+                && !fileName.equals("")) {
+            //Prepare the Datastore service.
+            DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+            //We will serach in the 'Files' table for the file name.
+            Query fileQuery = new Query(Defs.DATASTORE_KIND_FILES_BACKUP_STRING);
+            //Set a filetr on the file name.
+            Query.Filter fileFilter = new Query.FilterPredicate(Defs.ENTITY_PROPERTY_FILENAME_STRING,
+                    Query.FilterOperator.EQUAL, fileName);
+            fileQuery.setFilter(fileFilter);
+            //Run the query.
+            List<Entity> dbFiles = datastore.prepare(fileQuery).asList(FetchOptions.Builder.withDefaults());
+            if (!dbFiles.isEmpty()) {
+                GcsService gcsService = GcsServiceFactory.createGcsService(new RetryParams.Builder()
+                        .initialRetryDelayMillis(10)
+                        .retryMaxAttempts(10)
+                        .totalRetryPeriodMillis(15000)
+                        .build());
+                datastore.delete(dbFiles.get(0).getKey());
+                gcsService.delete(new GcsFilename(bucket, userName + "/"+ fileName));
+                
+                session.setAttribute(Defs.SESSION_MESSAGE_STRING, "The file indicated was deleted!");
+                response.sendRedirect(Defs.RESTORE_PAGE_STRING);
+            } else {
+                //There was no such file name.
+                session.setAttribute(Defs.SESSION_MESSAGE_STRING, "No such file!");
+                response.sendRedirect(Defs.RESTORE_PAGE_STRING);
             }
-            //Close the output stream.
-            outStream.close();
-            //Set a confirmation message in the session (won't be displayed because the 
-            //Servlet does not display any thing in the browser).
-            //Return to the page which lists files.
-            session.setAttribute(Defs.SESSION_MESSAGE_STRING, "File downloaded.");
-            response.sendRedirect(Defs.LIST_PAGE_STRING);
         } else {
             //If the user has not logged in then return him/her to the login page.
             session.setAttribute(Defs.SESSION_MESSAGE_STRING, "Please login firt!");
@@ -122,5 +129,4 @@ public class Download extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
 }
